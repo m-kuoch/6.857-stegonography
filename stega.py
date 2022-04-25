@@ -1,5 +1,6 @@
 from stegano import lsb
 
+# source code: https://git.sr.ht/~cedric/stegano/tree/master/item/stegano/lsb/lsb.py
 
 def stegano_hide(cover,message,output_file):
     secret = lsb.hide(cover,message)

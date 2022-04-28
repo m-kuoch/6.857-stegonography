@@ -48,12 +48,12 @@ if __name__ == '__main__':
 
         LL, other_cover = pywt.dwt2(cover, 'coif1')
         qc, rc = np.linalg.qr(LL)
-        secret = secret[:LL.shape[0], :LL.shape[1]]
+        #secret = secret[:LL.shape[0], :LL.shape[1]]
 
         axes[row][1].imshow(secret, cmap='gray', vmin=0, vmax=255)
-        #LL_secret, other_secret = pywt.dwt2(secret, 'coif1')
         axes[row][1].set_title('Secret')
-        qs, rs = np.linalg.qr(secret)
+        LL_secret, other_secret = pywt.dwt2(secret, 'coif1')
+        qs, rs = np.linalg.qr(LL_secret)
 
         # Combine cover and secret, generate stego
         r_combined = rc + (alpha * rs)
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         qsi, rsi = np.linalg.qr(LL)
         r_extracted = (rsi - rc) / alpha
         recovered = qs @ r_extracted
-        #recovered = pywt.idwt2((recovered, other), 'coif1')
+        recovered = pywt.idwt2((recovered, other_secret), 'coif1')
         axes[row][3].imshow(np.uint8(recovered), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
     qr_hide_dwt(cover, secret, axes, row=1)

@@ -4,7 +4,7 @@ from PIL import Image
 import pywt
 
 if __name__ == '__main__':
-    fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(12, 9))
+    fig, axes = plt.subplots(nrows=4, ncols=4, figsize=(12, 12))
     im = Image.open('lady.jpg').convert('L')
     cover = np.array(im)  # 2D array
     secret = np.array(Image.open('secret_grayscale.jpg').convert('L'))
@@ -44,8 +44,8 @@ if __name__ == '__main__':
         recovered = qs @ r_extracted
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
-
     qr_hide(cover, secret, axes, row=0)
+    axes[0][0].set_ylabel('QR method')
 
     def qr_hide_dwt(cover, secret, axes, row=0):
         """QR method with DWT"""
@@ -80,6 +80,41 @@ if __name__ == '__main__':
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
     qr_hide_dwt(cover, secret, axes, row=1)
+    axes[1][0].set_ylabel('QR with DWT db1')
+
+    def qr_hide_dft(cover, secret, axes, row=0):
+        """QR method with DFT"""
+        alpha = 0.01
+
+        axes[row][0].imshow(cover*255, cmap='gray', vmin=0, vmax=255)
+        axes[row][0].set_title('Cover')
+
+
+        LL = np.fft.fft2(cover)
+        qc, rc = np.linalg.qr(LL)
+
+        axes[row][1].imshow(secret*255, cmap='gray', vmin=0, vmax=255)
+        axes[row][1].set_title('Secret')
+        LL_secret = np.fft.fft2(secret)
+        qs, rs = np.linalg.qr(LL_secret)
+
+        # Combine cover and secret, generate stego
+        r_combined = rc + (alpha * rs)
+        stego = qc @ r_combined
+        stego = np.fft.ifft2(stego)
+        axes[row][2].imshow(np.uint8(stego*255), cmap='gray', vmin=0, vmax=255)
+        axes[row][2].set_title('Stego')
+
+        # Extract secret image
+        LL = np.fft.fft2(stego)
+        qsi, rsi = np.linalg.qr(LL)
+        r_extracted = (rsi - rc) / alpha
+        recovered = qs @ r_extracted
+        recovered = np.fft.ifft2(recovered)
+        axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
+        axes[row][3].set_title('Recovered')
+    qr_hide_dft(cover, secret, axes, row=2)
+    axes[2][0].set_ylabel('QR with FFT2')
 
     def qr_hide_dwt2(cover, secret, axes, row=0):
         """QR method with DWT after QR decomposition (histo paper)"""
@@ -111,7 +146,8 @@ if __name__ == '__main__':
         recovered = qs @ r_extracted
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
-    qr_hide_dwt2(cover, secret, axes, row=2)
+    qr_hide_dwt2(cover, secret, axes, row=3)
+    axes[3][0].set_ylabel('Histo paper')
 
     plt.show()
 

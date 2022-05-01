@@ -135,7 +135,13 @@ if __name__ == '__main__':
 
         # Combine cover and secret, generate stego
         r_combined = LL_cover + (alpha * LL_secret)
-        stego = pywt.idwt2((r_combined, other_cover), wavelet)
+
+        other_combined = []
+        for i in range(len(other_secret)):
+            other_combined.append(other_cover[i] + (alpha * other_secret[i]))
+        other_combined = tuple(other_combined)
+
+        stego = pywt.idwt2((r_combined, other_combined), wavelet)  # replace other_combined with other_cover
         axes[row][2].imshow(np.uint8(stego*255), cmap='gray', vmin=0, vmax=255)
         axes[row][2].set_title('Stego')
 

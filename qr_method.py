@@ -55,28 +55,28 @@ if __name__ == '__main__':
         axes[row][0].set_title('Cover')
 
 
-        LL, other_cover = pywt.dwt2(cover, 'coif1')
+        LL, other_cover = pywt.dwt2(cover, 'db1')
         qc, rc = np.linalg.qr(LL)
         #secret = secret[:LL.shape[0], :LL.shape[1]]
 
         axes[row][1].imshow(secret*255, cmap='gray', vmin=0, vmax=255)
         axes[row][1].set_title('Secret')
-        LL_secret, other_secret = pywt.dwt2(secret, 'coif1')
+        LL_secret, other_secret = pywt.dwt2(secret, 'db1')
         qs, rs = np.linalg.qr(LL_secret)
 
         # Combine cover and secret, generate stego
         r_combined = rc + (alpha * rs)
         stego = qc @ r_combined
-        stego = pywt.idwt2((stego, other_cover), 'coif1')
+        stego = pywt.idwt2((stego, other_cover), 'db1')
         axes[row][2].imshow(np.uint8(stego*255), cmap='gray', vmin=0, vmax=255)
         axes[row][2].set_title('Stego')
 
         # Extract secret image
-        LL, other = pywt.dwt2(stego, 'coif1')
+        LL, other = pywt.dwt2(stego, 'db1')
         qsi, rsi = np.linalg.qr(LL)
         r_extracted = (rsi - rc) / alpha
         recovered = qs @ r_extracted
-        recovered = pywt.idwt2((recovered, other_secret), 'coif1')
+        recovered = pywt.idwt2((recovered, other_secret), 'db1')
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
     qr_hide_dwt(cover, secret, axes, row=1)
@@ -94,19 +94,19 @@ if __name__ == '__main__':
         qs, rs = np.linalg.qr(secret)
 
         # DWT of cover image and QR decomposition of secret image
-        LL_secret, other_secret = pywt.dwt2(secret, 'coif1')
-        LL_cover, other_cover = pywt.dwt2(cover, 'coif1')
+        LL_secret, other_secret = pywt.dwt2(secret, 'db1')
+        LL_cover, other_cover = pywt.dwt2(cover, 'db1')
 
         # Combine cover and secret, generate stego
         r_combined = LL_cover + (alpha * LL_secret)
-        stego = pywt.idwt2((r_combined, other_cover), 'coif1')
+        stego = pywt.idwt2((r_combined, other_cover), 'db1')
         axes[row][2].imshow(np.uint8(stego*255), cmap='gray', vmin=0, vmax=255)
         axes[row][2].set_title('Stego')
 
         # Extract secret image
-        rsi, other_recovered = pywt.dwt2(stego, 'coif1')
+        rsi, other_recovered = pywt.dwt2(stego, 'db1')
         r_extracted = (rsi - LL_cover) / alpha
-        r_extracted = pywt.idwt2((r_extracted, other_secret), 'coif1')
+        r_extracted = pywt.idwt2((r_extracted, other_secret), 'db1')
         recovered = qs @ r_extracted
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')

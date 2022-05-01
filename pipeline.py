@@ -144,6 +144,7 @@ def run_comparison(
     methods,
     exe_config: dict = {},
     display_config: dict = {},
+    skip_evaluation: bool = False,
 ):
     evaluations = {}
 
@@ -161,28 +162,34 @@ def run_comparison(
     fig, axes = plt.subplots(nrows=num_methods, ncols=4, figsize=(12, 12))
 
     for i, method in enumerate(methods):
-        method_func = METHODS_MAP[method]
-        execution_config = exe_config.get(method, {})
-        stego, recovered = method_func(cover, secret, **execution_config)
-
-        cover_display = np.uint8(cover * 255)
-        secret_display = np.uint8(secret * 255)
-        stego_display = np.uint8(stego * 255)
-        recovered_display = np.uint8(recovered * 255)
 
         # Show the cover image
+        cover_display = np.uint8(cover * 255)
         axes[i][0].imshow(cover_display, cmap="gray", vmin=0, vmax=255)
         axes[i][0].set_title("Cover")
 
         # Show the secret image
+        secret_display = np.uint8(secret * 255)
         axes[i][1].imshow(secret_display, cmap="gray", vmin=0, vmax=255)
         axes[i][1].set_title("Secret")
 
+        try:
+            method_func = METHODS_MAP[method]
+        except KeyError:
+            print(f'Warning: method "{method}" not found! Skipping...')
+            continue
+
+        execution_config = exe_config.get(method, {})
+        stego, recovered = method_func(cover, secret, **execution_config)
+
+
         # Show the stego image
+        stego_display = np.uint8(stego * 255)
         axes[i][2].imshow(stego_display, cmap="gray", vmin=0, vmax=255)
         axes[i][2].set_title("Stego")
 
         # Show the recovered image
+        recovered_display = np.uint8(recovered * 255)
         axes[i][3].imshow(recovered_display, cmap="gray", vmin=0, vmax=255)
         axes[i][3].set_title("Recovered")
 
@@ -191,6 +198,9 @@ def run_comparison(
         except KeyError:
             label = method
         axes[i][0].set_ylabel(label)
+
+        if skip_evaluation:
+            continue
 
         evaluation_dict = eval.evaluate_images(
             cover_display,

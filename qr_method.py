@@ -55,7 +55,6 @@ if __name__ == '__main__':
         axes[row][0].imshow(cover*255, cmap='gray', vmin=0, vmax=255)
         axes[row][0].set_title('Cover')
 
-
         LL, other_cover = pywt.dwt2(cover, wavelet)
         qc, rc = np.linalg.qr(LL)
         #secret = secret[:LL.shape[0], :LL.shape[1]]

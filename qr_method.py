@@ -119,7 +119,7 @@ if __name__ == '__main__':
     def qr_hide_dwt2(cover, secret, axes, row=0):
         """QR method with DWT after QR decomposition (histo paper)"""
         alpha = 0.01
-        wavelet = 'coif4'
+        wavelet = 'db1'
 
         axes[row][0].imshow(cover*255, cmap='gray', vmin=0, vmax=255)
         axes[row][0].set_title('Cover')
@@ -130,7 +130,7 @@ if __name__ == '__main__':
         qs, rs = np.linalg.qr(secret)
 
         # DWT of cover image and QR decomposition of secret image
-        LL_secret, other_secret = pywt.dwt2(secret, wavelet)
+        LL_secret, other_secret = pywt.dwt2(rs, wavelet)
         LL_cover, other_cover = pywt.dwt2(cover, wavelet)
 
         # Combine cover and secret, generate stego
@@ -148,6 +148,38 @@ if __name__ == '__main__':
         axes[row][3].set_title('Recovered')
     qr_hide_dwt2(cover, secret, axes, row=3)
     axes[3][0].set_ylabel('Histo paper')
+
+    def qr_hide_fft_v2(cover, secret, axes, row=0):
+        """QR method with FFT after QR decomposition (similar to histo paper)"""
+        alpha = 0.01
+
+        axes[row][0].imshow(cover*255, cmap='gray', vmin=0, vmax=255)
+        axes[row][0].set_title('Cover')
+        axes[row][1].imshow(secret*255, cmap='gray', vmin=0, vmax=255)
+        axes[row][1].set_title('Secret')
+
+        # QR decomposition of secret image
+        qs, rs = np.linalg.qr(secret)
+
+        # DWT of cover image and QR decomposition of secret image
+        LL_secret = np.fft.fft2(rs)
+        LL_cover = np.fft.fft2(cover)
+
+        # Combine cover and secret, generate stego
+        r_combined = LL_cover + (alpha * LL_secret)
+        stego = np.fft.ifft2(r_combined)
+        axes[row][2].imshow(np.uint8(stego*255), cmap='gray', vmin=0, vmax=255)
+        axes[row][2].set_title('Stego')
+
+        # Extract secret image
+        rsi = np.fft.fft2(stego)
+        r_extracted = (rsi - LL_cover) / alpha
+        r_extracted = np.fft.ifft2(r_extracted)
+        recovered = qs @ r_extracted
+        axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
+        axes[row][3].set_title('Recovered')
+    #qr_hide_dwt2(cover, secret, axes, row=3)
+    #axes[3][0].set_ylabel('Histo paper')
 
     plt.show()
 

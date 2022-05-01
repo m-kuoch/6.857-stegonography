@@ -1,4 +1,4 @@
-from skimage.measure import compare_mse,compare_nrmse,compare_psnr,compare_ssim
+import skimage.metrics
 import argparse
 import imutils
 import cv2
@@ -22,36 +22,40 @@ SSIM
 https://en.wikipedia.org/wiki/Structural_similarity
 '''
 
+def evaluate_images(cover_image,secret_image,stego_image,recovered_image):
+    '''
+    takes in cover, secret, stego, recovered image, and evaluate them
 
-if __name__ == '__main__':
-    # 3. Load the two input images
-    coverImagePath = './images/cover/lady.jpg'
-    stegoImagePath = './images/secret/secret_grayscale.jpg'
-    outputImagePath = './images/stego/breuh.jpg'
-    recoveredImagePath = ''
-    coverImage = cv2.imread(coverImagePath)
-    stegoImage = cv2.imread(stegoImagePath)
-    # recoveredImage = cv2.imread(recoveredImagePath)
+    :param cover_image: The cover image
+    :param secret_image: The secret image to hide
+    :param stego_image: The output steganography
+    :param recovered_image: The recovered image
+    :return: A dictionary with various types of scores and their values.
+    '''
 
+    # print(cover_image)
+    # print(secret_image)
+    # print(stego_image)
+    # print(recovered_image)
 
-    # MSE https://en.wikipedia.org/wiki/Mean_squared_error
-    score_mse_cover_stego = compare_mse(coverImage, outputImagePath)
-    # score_mse_stego_recovered = skimage.measure.compare_mse(recoveredImage, stegoImagePath)
+    score_mse_stego = skimage.metrics.mean_squared_error(cover_image, stego_image)
+    score_mse_recovered = skimage.metrics.mean_squared_error(secret_image,recovered_image)
     # NMRSE https://en.wikipedia.org/wiki/Root-mean-square_deviation#Normalization
-    score_nmrse_cover_stego = compare_nrmse(coverImage, outputImagePath)
-    # score_nmrse_stego_recovered = skimage.measure.compare_nrmse(recoveredImage, stegoImagePath)
+    score_nmrse_stego = skimage.metrics.normalized_root_mse(cover_image, stego_image)
+    score_nmrse_recovered = skimage.metrics.normalized_root_mse(secret_image,recovered_image)
 
     # PSNR https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio
-    score_psnr_cover_stego = compare_psnr(coverImage, outputImagePath)
-    # score_psnr_stego_recovered = skimage.measure.compare_psnr(recoveredImage, stegoImagePath)
+    score_psnr_stego = skimage.metrics.peak_signal_noise_ratio(cover_image, stego_image)
+    score_psnr_recovered = skimage.metrics.peak_signal_noise_ratio(secret_image,recovered_image)
 
     # SSIM https://en.wikipedia.org/wiki/Structural_similarity
 
-    (score_ssim_cover_stego, diff) = compare_ssim(coverImage, outputImagePath, full=True)
-    # (score_ssim_stego_recovered, diff_recovered) = skimage.measure.compare_ssim(recoveredImage, stegoImagePath, full=True)
-    # score_psnr_cover_stego = (diff * 255).astype("uint8")
+    score_ssim_stego = skimage.metrics.structural_similarity(cover_image, stego_image)
+    score_ssim_recovered = skimage.metrics.structural_similarity(secret_image,recovered_image)
+
+    return {'stego_mse':score_mse_stego, 'recovered_mse': score_mse_recovered,
+            'stego_nmrse':score_nmrse_stego, 'recovered_nmrse': score_nmrse_recovered,
+            'stego_psnr':score_psnr_stego, 'recovered_psnr': score_psnr_recovered,
+            'stego_ssim':score_ssim_stego, 'recovered_ssim': score_ssim_recovered}
 
 
-
-    print("Cover vs Stego \n MSE: {} \n NMRSE: {} \n PNSR:{} \n SSIM: {}  ".format(score_mse_cover_stego, score_nmrse_cover_stego, score_psnr_cover_stego, score_ssim_cover_stego))
-    # print("Recovered vs Stego \n MSE: {} \n NMRSE: {} \n PNSR:{} \n SSIM: {}  ".format(score_mse_cover_stego, score_nmrse_cover_stego, score_psnr_cover_stego, score_ssim_cover_stego))

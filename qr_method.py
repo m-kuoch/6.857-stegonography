@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image
 import pywt
+import evaluation
 
 if __name__ == '__main__':
     fig, axes = plt.subplots(nrows=4, ncols=4, figsize=(12, 12))
@@ -44,6 +45,10 @@ if __name__ == '__main__':
         recovered = qs @ r_extracted
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
+
+        evaluation_dict = evaluation.evaluate_images(np.uint8(cover*255), np.uint8(secret*255),np.uint8(stego*255),np.uint8(recovered*255))
+        # print(evaluation_dict)
+
     qr_hide(cover, secret, axes, row=0)
     axes[0][0].set_ylabel('QR method')
 
@@ -79,6 +84,10 @@ if __name__ == '__main__':
         recovered = pywt.idwt2((recovered, other_secret), wavelet)
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
+
+        evaluation_dict = evaluation.evaluate_images(np.uint8(cover*255), np.uint8(secret*255),np.uint8(stego*255),np.uint8(recovered*255))
+        # print(evaluation_dict)
+
     qr_hide_dwt(cover, secret, axes, row=1)
     axes[1][0].set_ylabel('QR with DWT db1')
 
@@ -113,6 +122,9 @@ if __name__ == '__main__':
         recovered = np.fft.ifft2(recovered)
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
+        evaluation_dict = evaluation.evaluate_images(np.uint8(cover*255), np.uint8(secret*255),np.uint8(stego*255),np.uint8(recovered*255))
+        # print(evaluation_dict)
+
     qr_hide_dft(cover, secret, axes, row=2)
     axes[2][0].set_ylabel('QR with FFT2')
 
@@ -152,6 +164,9 @@ if __name__ == '__main__':
         recovered = qs @ r_extracted
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
+        evaluation_dict = evaluation.evaluate_images(np.uint8(cover*255), np.uint8(secret*255),np.uint8(stego*255),np.uint8(recovered*255))
+        # print(evaluation_dict)
+
     qr_hide_dwt2(cover, secret, axes, row=3)
     axes[3][0].set_ylabel('Histo paper')
 
@@ -184,6 +199,8 @@ if __name__ == '__main__':
         recovered = qs @ r_extracted
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
+        evaluation_dict = evaluation.evaluate_images(np.uint8(cover*255), np.uint8(secret*255),np.uint8(stego*255),np.uint8(recovered*255))
+        # print(evaluation_dict)
     #qr_hide_dwt2(cover, secret, axes, row=3)
     #axes[3][0].set_ylabel('Histo paper')
 

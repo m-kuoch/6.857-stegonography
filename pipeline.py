@@ -208,7 +208,7 @@ def run_comparison(
     secret = _load_image(secret_path)
     cover = cover / 255
     secret = secret / 255
-    
+
     # cover = np.concatenate((cover, np.zeros((cover.shape[0], 1))), axis=1)
     # cover = np.concatenate((cover, np.zeros((1, cover.shape[1]))), axis=0)
     # secret = np.concatenate((secret, np.zeros((secret.shape[0], 1))), axis=1)
@@ -224,12 +224,10 @@ def run_comparison(
         # Show the cover image
         cover_display = np.uint8(cover * 255)
         axes[i][0].imshow(cover_display, cmap="gray", vmin=0, vmax=255)
-        axes[i][0].set_title("Cover")
 
         # Show the secret image
         secret_display = np.uint8(secret * 255)
         axes[i][1].imshow(secret_display, cmap="gray", vmin=0, vmax=255)
-        axes[i][1].set_title("Secret")
 
         method_name = method
         exe_config = {}
@@ -250,12 +248,11 @@ def run_comparison(
         # Show the stego image
         stego_display = np.uint8(stego * 255)
         axes[i][2].imshow(stego_display, cmap="gray", vmin=0, vmax=255)
-        axes[i][2].set_title("Stego")
 
         # Show the recovered image
         recovered_display = np.uint8(recovered * 255)
         axes[i][3].imshow(recovered_display, cmap="gray", vmin=0, vmax=255)
-        axes[i][3].set_title("Recovered")
+
 
         if label == method_name:
             axes[i][0].set_ylabel(f"{label} ({exe_config})")
@@ -278,6 +275,11 @@ def run_comparison(
     for axes in axes.flat:
         axes.set_yticklabels([])
         axes.set_xticklabels([])
+
+    axes[0][0].set_title("Cover")
+    axes[0][1].set_title("Secret")
+    axes[0][2].set_title("Stego")
+    axes[0][3].set_title("Recovered")
 
     plt.tight_layout()
     plt.show()

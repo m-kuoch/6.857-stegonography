@@ -215,5 +215,10 @@ def run_comparison(
         print('Evaluation for "{}":'.format(label))
         print(evaluation_dict)
 
+    for axes in axes.flat:
+        axes.set_yticklabels([])
+        axes.set_xticklabels([])
+
+    plt.tight_layout()
     plt.show()
     return evaluations

@@ -26,8 +26,8 @@ def main() -> None:
     #     ],
     # )
     evaluation = p.run_comparison(
-        cover_path=os.path.join("images", "cover", "099900.jpg"),
-        secret_path=os.path.join("images", "cover", "099901.jpg"),
+        cover_path=os.path.join("images", "cover", "099902.jpg"),
+        secret_path=os.path.join("images", "secret", "test.jpg"),
         methods=[
             "qr",
             "dwt_qr",

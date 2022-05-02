@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image
+import evaluation
 
 if __name__ == '__main__':
     fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(12, 3))
@@ -43,6 +44,10 @@ if __name__ == '__main__':
         recovered = qs @ r_extracted
         axes[3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[3].set_title('Recovered')
+
+        evaluation_dict = evaluation.evaluate_images(np.uint8(cover*255), np.uint8(secret*255),np.uint8(stego*255),np.uint8(recovered*255))
+        print(evaluation_dict)
+
     qr_hide(cover, secret, axes, row=0)
     axes[0].set_ylabel('QR method')
 

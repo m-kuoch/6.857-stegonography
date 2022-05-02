@@ -7,7 +7,6 @@ import pandas as pd
 import dataframe_image as dfi
 
 
-
 def main() -> None:
     # stega.stegano_hide("./lady.png", "hello world", "breuh.png")
     # print(stega.reveal("breuh.png"))
@@ -30,16 +29,24 @@ def main() -> None:
         cover_path=os.path.join("images", "cover", "lady.jpg"),
         secret_path=os.path.join("images", "secret", "secret_grayscale.jpg"),
         methods=[
-            "qr", "dwt_qr", "fwt_qr", "qr_dwt", "qr_fwt",
+            "qr",
+            "dwt_qr",
+            "fwt_qr",
+            "qr_dwt",
+            "qr_fwt",
+            "qr_both_dwt",
+            "qr_both_fwt",
         ],
     )
     print(evaluation)
     df = pd.DataFrame(evaluation)
     # dfi.save_dataframe_image(df, "evaluation2.png")
-    df = pd.DataFrame.from_dict(evaluation, orient='index')
+    df = pd.DataFrame.from_dict(evaluation, orient="index")
     # df.style.apply(highlight_max).to_html("results.html")
-    df_styled = df.style.highlight_max(color='lightgreen', axis=0).highlight_min(color='lightcoral', axis=0)
-    dfi.export(df_styled, 'dataframe2.png')
+    df_styled = df.style.highlight_max(color="lightgreen", axis=0).highlight_min(
+        color="lightcoral", axis=0
+    )
+    dfi.export(df_styled, "dataframe2.png")
     print(df)
     print(evaluation)
 

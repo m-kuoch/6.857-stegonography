@@ -325,15 +325,19 @@ def run_comparison(
         print('Evaluation for "{}":'.format(label))
         print(evaluation_dict)
 
-    for axes in axes.flat:
-        axes.set_yticklabels([])
-        axes.set_xticklabels([])
-
     axes[0][0].set_title("Cover")
     axes[0][1].set_title("Secret")
     axes[0][2].set_title("Stego")
     axes[0][3].set_title("Recovered")
 
+    for axes in axes.flat:
+        axes.set_yticklabels([])
+        axes.set_xticklabels([])
+
+
+
     plt.tight_layout()
     plt.show()
     return evaluations
+
+run_comparison('images/cover/099900.jpg', 'images/secret/test.jpg', ['qr', 'qr_dwt'], skip_evaluation=False)

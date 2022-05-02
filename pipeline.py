@@ -1,3 +1,4 @@
+import cv2
 from matplotlib import pyplot as plt
 import evaluation as eval
 from PIL import Image
@@ -12,6 +13,25 @@ def _load_image(path):
 def _show_image(image):
     plt.imshow(image, cmap="gray", vmin=0, vmax=255)
     plt.show()
+
+def histogram_difference(image1, image2):
+    # METHOD #1: UTILIZING OPENCV
+    # initialize OpenCV methods for histogram comparison
+    OPENCV_METHODS = (
+        ("Correlation", cv2.HISTCMP_CORREL),
+        ("Chi-Squared", cv2.HISTCMP_CHISQR),
+        ("Intersection", cv2.HISTCMP_INTERSECT),
+        ("Hellinger", cv2.HISTCMP_BHATTACHARYYA))
+    # loop over the comparison methods
+    for (methodName, method) in OPENCV_METHODS:
+        # initialize the results dictionary and the sort
+        # direction
+        results = {}
+        reverse = False
+        # if we are using the correlation or intersection
+        # method, then sort the results in reverse order
+        if methodName in ("Correlation", "Intersection"):
+            reverse = True
 
 
 def qr_only(cover, secret, alpha=0.01):
@@ -217,7 +237,7 @@ def run_comparison(
 
 
     num_methods = len(methods)
-    fig, axes = plt.subplots(nrows=num_methods, ncols=4, figsize=(12, 12))
+    fig, axes = plt.subplots(nrows=num_methods, ncols=6, figsize=(12, 12))
 
     for i, method in enumerate(methods):
 
@@ -261,6 +281,39 @@ def run_comparison(
 
         if skip_evaluation:
             continue
+
+        # Hisogram Comparison
+        hist_cover = cv2.calcHist([cover_display], [0], None, [256], [0, 256])
+        hist_secret = cv2.calcHist([secret_display], [0], None, [256], [0, 256])
+        hist_stego = cv2.calcHist([stego_display], [0], None, [256], [0, 256])
+        hist_recovered = cv2.calcHist([recovered_display], [0], None, [256], [0, 256])
+
+        #Cover vs Stego
+        axes[i][4].plot(hist_cover, color="blue")
+        axes[i][4].plot(hist_stego, color="red")
+        axes[i][4].set_title("Histogram Comparison")
+        axes[i][4].set_xlabel("Bins")
+        axes[i][4].set_ylabel("Frequency")
+        # axes[i][4].legend(["Cover", "Stego"], bbox_to_anchor = (1.05, 0.6), mode= "expand")
+        axes[i][4].set_xlim([0, 256])
+        axes[i][4].set_ylim([0, max(hist_cover.max(), hist_stego.max())])
+        axes[i][4].grid(True)
+        axes[i][4].set_xticks(np.arange(0, 256, 32))
+        axes[i][4].set_yticks(np.arange(0, max(hist_cover.max(), hist_stego.max()), max(hist_cover.max(), hist_stego.max()) / 10))
+
+        #Secret vs Recovered
+        axes[i][5].plot(hist_secret, color="blue")
+        axes[i][5].plot(hist_recovered, color="red")
+        axes[i][5].set_title("Histogram Comparison")
+        axes[i][5].set_xlabel("Bins")
+        axes[i][5].set_ylabel("Frequency")
+        # axes[i][5].legend(["Secret", "Recovered"],bbox_to_anchor = (1.05, 0.6), mode="expand")
+        axes[i][5].set_xlim([0, 256])
+        axes[i][5].set_ylim([0, max(hist_secret.max(), hist_recovered.max())])
+        axes[i][5].grid(True)
+        axes[i][5].set_xticks(np.arange(0, 256, 32))
+        axes[i][5].set_yticks(
+            np.arange(0, max(hist_secret.max(), hist_recovered.max()), max(hist_secret.max(), hist_recovered.max()) / 10))
 
         evaluation_dict = eval.evaluate_images(
             cover_display,

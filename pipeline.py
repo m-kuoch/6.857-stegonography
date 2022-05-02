@@ -159,7 +159,7 @@ def qr_both_dwt(cover, secret, alpha=0.01, wavelet='db1'):
     return stego, recovered
 
 def qr_both_fwt(cover, secret, alpha=0.01):
-    """QR method with FFT after QR decomposition (similar to histo paper)"""
+    """QR method with FFT after QR decomposition (both)"""
     # QR decomposition of cover image
     qc, rc = np.linalg.qr(cover)
     # QR decomposition of secret image
@@ -208,13 +208,13 @@ def run_comparison(
     secret = _load_image(secret_path)
     cover = cover / 255
     secret = secret / 255
-    cover = np.concatenate((cover, np.zeros((cover.shape[0], 1))), axis=1)
-    cover = np.concatenate((cover, np.zeros((1, cover.shape[1]))), axis=0)
-    secret = np.concatenate((secret, np.zeros((secret.shape[0], 1))), axis=1)
-    secret = np.concatenate((secret, np.zeros((1, secret.shape[1]))), axis=0)
     
-    # Make secret the same dimensions as cover
-    # TODO
+    # cover = np.concatenate((cover, np.zeros((cover.shape[0], 1))), axis=1)
+    # cover = np.concatenate((cover, np.zeros((1, cover.shape[1]))), axis=0)
+    # secret = np.concatenate((secret, np.zeros((secret.shape[0], 1))), axis=1)
+    # secret = np.concatenate((secret, np.zeros((1, secret.shape[1]))), axis=0)
+    
+
 
     num_methods = len(methods)
     fig, axes = plt.subplots(nrows=num_methods, ncols=4, figsize=(12, 12))

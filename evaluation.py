@@ -60,6 +60,11 @@ def evaluate_images(cover_image,secret_image,stego_image,recovered_image):
     stats_ks_stego, p_val_ks_stego = stats.ks_2samp(hist_cover.reshape(-1), hist_stego.reshape(-1))
     stats_ks_recovered, p_val_ks_recovered = stats.ks_2samp(hist_secret.reshape(-1),hist_recovered.reshape(-1))
 
+    # Wasserstein metric https://en.wikipedia.org/wiki/Wasserstein_metric
+    # print(hist_cover.reshape(-1))
+    ws_stego = stats.wasserstein_distance(hist_cover.reshape(-1), hist_stego.reshape(-1))
+    ws_recovered = stats.wasserstein_distance(hist_secret.reshape(-1), hist_recovered.reshape(-1))
+
     # return {'stego_mse':score_mse_stego, 'recovered_mse': score_mse_recovered,
     #         'stego_nmrse':score_nmrse_stego, 'recovered_nmrse': score_nmrse_recovered,
     #         'stego_psnr':score_psnr_stego, 'recovered_psnr': score_psnr_recovered,
@@ -68,7 +73,8 @@ def evaluate_images(cover_image,secret_image,stego_image,recovered_image):
             'stego_psnr': score_psnr_stego, 'recovered_psnr': score_psnr_recovered,
             'stego_ssim': score_ssim_stego, 'recovered_ssim': score_ssim_recovered,
             'stego_ks': stats_ks_stego, 'recovered_ks': stats_ks_recovered,
-            'stego_p_val': p_val_ks_stego, 'recovered_p_val': p_val_ks_recovered
+            'stego_p_val': p_val_ks_stego, 'recovered_p_val': p_val_ks_recovered,
+            'stego_ws': ws_stego, 'recovered_ws': ws_recovered
     }
 
 

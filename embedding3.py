@@ -4,7 +4,7 @@ from PIL import Image
 import pywt
 
 if __name__ == '__main__':
-    fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(12, 6))
+    fig, axes = plt.subplots(nrows=4, ncols=4, figsize=(10, 10))
     im = Image.open('lady.jpg').convert('L')
     cover = np.array(im)  # 2D array
     secret = np.array(Image.open('secret_grayscale.jpg').convert('L'))
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         axes[row][3].set_title('Recovered')
 
     qr_hide_dwt2(cover, secret, axes, row=0)
-    axes[0][0].set_ylabel('Histo paper, dwt')
+    axes[0][0].set_ylabel('QR decomp secret, DWT')
 
 
     def qr_hide_fft_v2(cover, secret, axes, row=0):
@@ -93,6 +93,89 @@ if __name__ == '__main__':
         axes[row][3].set_title('Recovered')
 
     qr_hide_dwt2(cover, secret, axes, row=1)
-    axes[1][0].set_ylabel('Histo paper, fft')
+    axes[1][0].set_ylabel('QR decomp secret, DFT')
 
+    def qr_hide_dwt3(cover, secret, axes, row=0):
+        """QR method with DWT after QR decomposition (QR BOTH)"""
+        alpha = 0.01
+        wavelet = 'db1'
+
+        axes[row][0].imshow(cover * 255, cmap='gray', vmin=0, vmax=255)
+        axes[row][0].set_title('Cover')
+        axes[row][1].imshow(secret * 255, cmap='gray', vmin=0, vmax=255)
+        axes[row][1].set_title('Secret')
+
+        # QR decomposition of cover image
+        qc, rc = np.linalg.qr(cover)
+        # QR decomposition of secret image
+        qs, rs = np.linalg.qr(secret)
+
+        # DWT of cover image and QR decomposition of secret image
+        LL_secret, other_secret = pywt.dwt2(rs, wavelet)
+        LL_cover, other_cover = pywt.dwt2(rc, wavelet)
+
+        # Combine cover and secret, generate stego
+        r_combined = LL_cover + (alpha * LL_secret)
+
+        other_combined = []
+        for i in range(len(other_secret)):
+            other_combined.append(other_cover[i] + (alpha * other_secret[i]))
+        other_combined = tuple(other_combined)
+
+        stego = pywt.idwt2((r_combined, other_combined), wavelet)  # replace other_combined with other_cover
+        stego = qc @ stego  # transform back to original space
+        axes[row][2].imshow(np.uint8(stego * 255), cmap='gray', vmin=0, vmax=255)
+        axes[row][2].set_title('Stego')
+
+        # Extract secret image
+        q_secret, r_secret = np.linalg.qr(stego)
+        rsi, other_recovered = pywt.dwt2(r_secret, wavelet)
+        r_extracted = (rsi - LL_cover) / alpha
+        r_extracted = pywt.idwt2((r_extracted, other_secret), wavelet)
+        recovered = qs @ r_extracted
+        axes[row][3].imshow(np.uint8(recovered * 255), cmap='gray', vmin=0, vmax=255)
+        axes[row][3].set_title('Recovered')
+
+    qr_hide_dwt3(cover, secret, axes, row=2)
+    axes[2][0].set_ylabel('QR decomp both, DWT')
+
+    def qr_hide_fft_v3(cover, secret, axes, row=0):
+        """QR method with FFT after QR decomposition (similar to histo paper)"""
+        alpha = 0.01
+
+        axes[row][0].imshow(cover * 255, cmap='gray', vmin=0, vmax=255)
+        axes[row][0].set_title('Cover')
+        axes[row][1].imshow(secret * 255, cmap='gray', vmin=0, vmax=255)
+        axes[row][1].set_title('Secret')
+
+        # QR decomposition of cover image
+        qc, rc = np.linalg.qr(cover)
+        # QR decomposition of secret image
+        qs, rs = np.linalg.qr(secret)
+
+        # DWT of cover image and QR decomposition of secret image
+        LL_secret = np.fft.fft2(rs)
+        LL_cover = np.fft.fft2(rc)
+
+        # Combine cover and secret, generate stego
+        r_combined = LL_cover + (alpha * LL_secret)
+        stego = np.fft.ifft2(r_combined)
+        stego = qc @ stego  # transform back to original space
+        axes[row][2].imshow(np.uint8(stego * 255), cmap='gray', vmin=0, vmax=255)
+        axes[row][2].set_title('Stego')
+
+        # Extract secret image
+        q_secret, r_secret = np.linalg.qr(stego)
+        rsi = np.fft.fft2(r_secret)
+        r_extracted = (rsi - LL_cover) / alpha
+        r_extracted = np.fft.ifft2(r_extracted)
+        recovered = qs @ r_extracted
+        axes[row][3].imshow(np.uint8(recovered * 255), cmap='gray', vmin=0, vmax=255)
+        axes[row][3].set_title('Recovered')
+
+    qr_hide_fft_v3(cover, secret, axes, row=3)
+    axes[3][0].set_ylabel('QR decomp both, DFT')
+
+    plt.tight_layout()
+    plt.axis('off')
     plt.show()

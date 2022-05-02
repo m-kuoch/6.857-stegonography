@@ -53,7 +53,7 @@ if __name__ == '__main__':
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
     qr_hide_dwt(cover, secret, axes, row=0)
-    axes[0][0].set_ylabel('QR with DWT db1')
+    axes[0][0].set_ylabel('QR with DWT (db1)')
 
     def qr_hide_dft(cover, secret, axes, row=0):
         """QR method with DFT"""
@@ -87,6 +87,11 @@ if __name__ == '__main__':
         axes[row][3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
         axes[row][3].set_title('Recovered')
     qr_hide_dft(cover, secret, axes, row=1)
-    axes[1][0].set_ylabel('QR with FFT2')
+    axes[1][0].set_ylabel('QR with DFT')
 
+    for axes in axes.flat:
+        axes.set_yticklabels([])
+        axes.set_xticklabels([])
+
+    plt.tight_layout()
     plt.show()

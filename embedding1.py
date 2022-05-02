@@ -46,4 +46,10 @@ if __name__ == '__main__':
     qr_hide(cover, secret, axes, row=0)
     axes[0].set_ylabel('QR method')
 
+    for axes in axes.flat:
+        axes.set_yticklabels([])
+        axes.set_xticklabels([])
+
+    plt.tight_layout()
+
     plt.show()

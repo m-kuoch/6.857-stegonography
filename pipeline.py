@@ -128,6 +128,61 @@ def qr_fwt(cover, secret, alpha=0.01):
 
     return stego, recovered
 
+def qr_both_dwt(cover, secret, alpha=0.01, wavelet='db1'):
+    # QR decomposition of cover image
+    qc, rc = np.linalg.qr(cover)
+    # QR decomposition of secret image
+    qs, rs = np.linalg.qr(secret)
+
+    # DWT of cover image and QR decomposition of secret image
+    LL_secret, other_secret = pywt.dwt2(rs, wavelet)
+    LL_cover, other_cover = pywt.dwt2(rc, wavelet)
+
+    # Combine cover and secret, generate stego
+    r_combined = LL_cover + (alpha * LL_secret)
+
+    other_combined = []
+    for i in range(len(other_secret)):
+        other_combined.append(other_cover[i] + (alpha * other_secret[i]))
+    other_combined = tuple(other_combined)
+
+    stego = pywt.idwt2((r_combined, other_combined), wavelet)  # replace other_combined with other_cover
+    stego = qc @ stego  # transform back to original space
+
+    # Extract secret image
+    q_secret, r_secret = np.linalg.qr(stego)
+    rsi, other_recovered = pywt.dwt2(r_secret, wavelet)
+    r_extracted = (rsi - LL_cover) / alpha
+    r_extracted = pywt.idwt2((r_extracted, other_secret), wavelet)
+    recovered = qs @ r_extracted
+    
+    return stego, recovered
+
+def qr_both_fwt(cover, secret, alpha=0.01):
+    """QR method with FFT after QR decomposition (similar to histo paper)"""
+    # QR decomposition of cover image
+    qc, rc = np.linalg.qr(cover)
+    # QR decomposition of secret image
+    qs, rs = np.linalg.qr(secret)
+
+    # DWT of cover image and QR decomposition of secret image
+    LL_secret = np.fft.fft2(rs)
+    LL_cover = np.fft.fft2(rc)
+
+    # Combine cover and secret, generate stego
+    r_combined = LL_cover + (alpha * LL_secret)
+    stego = np.fft.ifft2(r_combined)
+    stego = qc @ stego  # transform back to original space
+
+    # Extract secret image
+    q_secret, r_secret = np.linalg.qr(stego)
+    rsi = np.fft.fft2(r_secret)
+    r_extracted = (rsi - LL_cover) / alpha
+    r_extracted = np.fft.ifft2(r_extracted)
+    recovered = qs @ r_extracted
+    
+    return stego, recovered
+
 
 METHODS_MAP = {
     "qr": qr_only,
@@ -135,6 +190,8 @@ METHODS_MAP = {
     "fwt_qr": fwt_qr,
     "qr_dwt": qr_dwt,
     "qr_fwt": qr_fwt,
+    "qr_both_dwt": qr_both_dwt,
+    "qr_both_fwt": qr_both_fwt,
 }
 
 

@@ -237,7 +237,7 @@ def run_comparison(
 
 
     num_methods = len(methods)
-    fig, axes = plt.subplots(nrows=num_methods, ncols=6, figsize=(12, 12))
+    fig, axes = plt.subplots(nrows=num_methods, ncols=6, figsize=(10, 10))
 
     for i, method in enumerate(methods):
 
@@ -340,4 +340,4 @@ def run_comparison(
     plt.show()
     return evaluations
 
-run_comparison('images/cover/099900.jpg', 'images/secret/test.jpg', ['qr', 'qr_dwt', 'qr_dft'], skip_evaluation=False)
+#run_comparison('images/cover/099900.jpg', 'images/secret/test.jpg', ['qr', 'qr_dwt', 'qr_dft'], skip_evaluation=False)

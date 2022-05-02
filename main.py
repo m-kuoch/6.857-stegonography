@@ -1,7 +1,7 @@
 import numpy as np
 
 import pipeline as p
-import stega
+#import stega
 import os
 import pandas as pd
 import dataframe_image as dfi
@@ -31,13 +31,13 @@ def main() -> None:
         methods=[
             "qr",
             "dwt_qr",
-            "fwt_qr",
+            "dft_qr",
             "qr_dwt",
-            "qr_fwt",
+            "qr_dft",
             "qr_both_dwt",
-            "qr_both_fwt",
+            "qr_both_dft",
         ],
-        skip_evaluation=True,
+        skip_evaluation=False,
     )
     print(evaluation)
     df = pd.DataFrame(evaluation)

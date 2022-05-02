@@ -142,8 +142,6 @@ def run_comparison(
     cover_path: str,
     secret_path: str,
     methods,
-    exe_config: dict = {},
-    display_config: dict = {},
     skip_evaluation: bool = False,
 ):
     evaluations = {}
@@ -173,14 +171,20 @@ def run_comparison(
         axes[i][1].imshow(secret_display, cmap="gray", vmin=0, vmax=255)
         axes[i][1].set_title("Secret")
 
+        method_name = method
+        exe_config = {}
+        label = method
+        if isinstance(method, dict):
+            method_name = method['name']
+            exe_config = method.get('exe_config', {})
+            label = method.get('label', method_name)
         try:
-            method_func = METHODS_MAP[method]
+            method_func = METHODS_MAP[method_name]
         except KeyError:
-            print(f'Warning: method "{method}" not found! Skipping...')
+            print(f'Warning: method "{method_name}" not found! Skipping...')
             continue
-
-        execution_config = exe_config.get(method, {})
-        stego, recovered = method_func(cover, secret, **execution_config)
+        
+        stego, recovered = method_func(cover, secret, **exe_config)
 
 
         # Show the stego image
@@ -193,11 +197,10 @@ def run_comparison(
         axes[i][3].imshow(recovered_display, cmap="gray", vmin=0, vmax=255)
         axes[i][3].set_title("Recovered")
 
-        try:
-            label = display_config[method]["label"]
-        except KeyError:
-            label = method
-        axes[i][0].set_ylabel(label)
+        if label == method_name:
+            axes[i][0].set_ylabel(f"{label} ({exe_config})")
+        else:
+            axes[i][0].set_ylabel(f"{label}")
 
         if skip_evaluation:
             continue
@@ -208,8 +211,8 @@ def run_comparison(
             stego_display,
             recovered_display,
         )
-        evaluations[method] = evaluation_dict
-        print('Evaluation for "{}":'.format(method))
+        evaluations[f"{label} ({exe_config})"] = evaluation_dict
+        print('Evaluation for "{}":'.format(label))
         print(evaluation_dict)
 
     plt.show()

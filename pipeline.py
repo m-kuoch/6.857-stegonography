@@ -207,11 +207,11 @@ def qr_both_fwt(cover, secret, alpha=0.01):
 METHODS_MAP = {
     "qr": qr_only,
     "dwt_qr": dwt_qr,
-    "fwt_qr": fwt_qr,
+    "dft_qr": fwt_qr,
     "qr_dwt": qr_dwt,
-    "qr_fwt": qr_fwt,
+    "qr_dft": qr_fwt,
     "qr_both_dwt": qr_both_dwt,
-    "qr_both_fwt": qr_both_fwt,
+    "qr_both_dft": qr_both_fwt,
 }
 
 
@@ -340,4 +340,4 @@ def run_comparison(
     plt.show()
     return evaluations
 
-run_comparison('images/cover/099900.jpg', 'images/secret/test.jpg', ['qr', 'qr_dwt'], skip_evaluation=False)
+run_comparison('images/cover/099900.jpg', 'images/secret/test.jpg', ['qr', 'qr_dwt', 'qr_dft'], skip_evaluation=False)

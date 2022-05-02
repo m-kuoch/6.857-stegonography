@@ -212,6 +212,9 @@ def run_comparison(
     cover = np.concatenate((cover, np.zeros((1, cover.shape[1]))), axis=0)
     secret = np.concatenate((secret, np.zeros((secret.shape[0], 1))), axis=1)
     secret = np.concatenate((secret, np.zeros((1, secret.shape[1]))), axis=0)
+    
+    # Make secret the same dimensions as cover
+    # TODO
 
     num_methods = len(methods)
     fig, axes = plt.subplots(nrows=num_methods, ncols=4, figsize=(12, 12))

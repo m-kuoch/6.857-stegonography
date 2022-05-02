@@ -26,8 +26,8 @@ def main() -> None:
     #     ],
     # )
     evaluation = p.run_comparison(
-        cover_path=os.path.join("images", "cover", "lady.jpg"),
-        secret_path=os.path.join("images", "secret", "secret_grayscale.jpg"),
+        cover_path=os.path.join("images", "cover", "099900.jpg"),
+        secret_path=os.path.join("images", "cover", "099901.jpg"),
         methods=[
             "qr",
             "dwt_qr",
@@ -37,6 +37,7 @@ def main() -> None:
             "qr_both_dwt",
             "qr_both_fwt",
         ],
+        skip_evaluation=True,
     )
     print(evaluation)
     df = pd.DataFrame(evaluation)

@@ -38,11 +38,11 @@ def evaluate_images(cover_image,secret_image,stego_image,recovered_image):
     # print(stego_image)
     # print(recovered_image)
 
-    score_mse_stego = skimage.metrics.mean_squared_error(cover_image, stego_image)
-    score_mse_recovered = skimage.metrics.mean_squared_error(secret_image,recovered_image)
-    # NMRSE https://en.wikipedia.org/wiki/Root-mean-square_deviation#Normalization
-    score_nmrse_stego = skimage.metrics.normalized_root_mse(cover_image, stego_image)
-    score_nmrse_recovered = skimage.metrics.normalized_root_mse(secret_image,recovered_image)
+    # score_mse_stego = skimage.metrics.mean_squared_error(cover_image, stego_image)
+    # score_mse_recovered = skimage.metrics.mean_squared_error(secret_image,recovered_image)
+    # # NMRSE https://en.wikipedia.org/wiki/Root-mean-square_deviation#Normalization
+    # score_nmrse_stego = skimage.metrics.normalized_root_mse(cover_image, stego_image)
+    # score_nmrse_recovered = skimage.metrics.normalized_root_mse(secret_image,recovered_image)
 
     # PSNR https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio
     score_psnr_stego = skimage.metrics.peak_signal_noise_ratio(cover_image, stego_image)
@@ -53,9 +53,12 @@ def evaluate_images(cover_image,secret_image,stego_image,recovered_image):
     score_ssim_stego = skimage.metrics.structural_similarity(cover_image, stego_image)
     score_ssim_recovered = skimage.metrics.structural_similarity(secret_image,recovered_image)
 
-    return {'stego_mse':score_mse_stego, 'recovered_mse': score_mse_recovered,
-            'stego_nmrse':score_nmrse_stego, 'recovered_nmrse': score_nmrse_recovered,
-            'stego_psnr':score_psnr_stego, 'recovered_psnr': score_psnr_recovered,
-            'stego_ssim':score_ssim_stego, 'recovered_ssim': score_ssim_recovered}
+    # return {'stego_mse':score_mse_stego, 'recovered_mse': score_mse_recovered,
+    #         'stego_nmrse':score_nmrse_stego, 'recovered_nmrse': score_nmrse_recovered,
+    #         'stego_psnr':score_psnr_stego, 'recovered_psnr': score_psnr_recovered,
+    #         'stego_ssim':score_ssim_stego, 'recovered_ssim': score_ssim_recovered}
+    return {
+            'stego_psnr': score_psnr_stego, 'recovered_psnr': score_psnr_recovered,
+            'stego_ssim': score_ssim_stego, 'recovered_ssim': score_ssim_recovered}
 
 

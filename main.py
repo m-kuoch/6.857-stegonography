@@ -1,6 +1,11 @@
+import numpy as np
+
 import pipeline as p
 import stega
 import os
+import pandas as pd
+import dataframe_image as dfi
+
 
 
 def main() -> None:
@@ -21,6 +26,11 @@ def main() -> None:
             },
         ],
     )
+    df = pd.DataFrame.from_dict(evaluation, orient='index')
+    # df.style.apply(highlight_max).to_html("results.html")
+    df_styled = df.style.highlight_max(color='lightgreen', axis=0).highlight_min(color='lightcoral', axis=0)
+    dfi.export(df_styled, 'dataframe.png')
+    print(df)
     print(evaluation)
 
 

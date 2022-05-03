@@ -1,9 +1,10 @@
-import cv2
 from matplotlib import pyplot as plt
 import evaluation as eval
 from PIL import Image
 import numpy as np
 import pywt
+import cv2
+import os
 
 
 def _load_image(path):
@@ -32,6 +33,12 @@ def histogram_difference(image1, image2):
         # method, then sort the results in reverse order
         if methodName in ("Correlation", "Intersection"):
             reverse = True
+
+
+
+def lsb(cover, secret):
+    pass
+
 
 
 def qr_only(cover, secret, alpha=0.01):
@@ -220,6 +227,7 @@ def run_comparison(
     secret_path: str,
     methods,
     skip_evaluation: bool = False,
+    save_fig: bool = False,
 ):
     evaluations = {}
 
@@ -337,7 +345,11 @@ def run_comparison(
 
 
     plt.tight_layout()
-    plt.show()
+    if save_fig:
+        img_name = os.path.split(cover_path)[1].replace(".jpg", "")
+        plt.savefig(os.path.join('evaluation', 'figures', f'{img_name}-plot.png'))
+    else:
+        plt.show()
     return evaluations
 
 #run_comparison('images/cover/099900.jpg', 'images/secret/test.jpg', ['qr', 'qr_dwt', 'qr_dft'], skip_evaluation=False)

@@ -7,9 +7,16 @@ import os
 # import stega
 def analysis():
     df = pd.read_csv(os.path.join("evaluation", "eval-dataframe.csv"))
-    grouped_by_method = df.groupby("method").mean()
-    print(grouped_by_method)
-    grouped_by_method.to_csv(os.path.join("evaluation", "eval-dataframe-mean-grouped.csv"))
+    different_methods = [y for x, y in df.groupby('method', as_index=False)]
+    for method in different_methods:
+        method_name = method.iloc[0]['method']
+        stats = method.describe()
+        stats.to_csv(os.path.join("evaluation", f"{method_name}-summary-stats.csv"))
+
+    
+    # grouped_by_method = df.groupby("method").mean()
+    # print(grouped_by_method)
+    # grouped_by_method.to_csv(os.path.join("evaluation", "eval-dataframe-mean-grouped.csv"))
 
 
 def main() -> None:

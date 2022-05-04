@@ -15,6 +15,7 @@ def _show_image(image):
     plt.imshow(image, cmap="gray", vmin=0, vmax=255)
     plt.show()
 
+
 def histogram_difference(image1, image2):
     # METHOD #1: UTILIZING OPENCV
     # initialize OpenCV methods for histogram comparison
@@ -35,10 +36,27 @@ def histogram_difference(image1, image2):
             reverse = True
 
 
-
 def lsb(cover, secret):
-    pass
 
+    # Convert image to 1-bit pixel, black and white and resize to cover image
+    # secret = secret.convert("1")
+
+    secret_image = Image.fromarray(secret).convert("1")
+    # secret_image = secret_image.resize(cover.shape)
+    data_s = np.array(secret_image, dtype=np.uint8)
+
+    # Rewrite LSB
+    # print(cover)
+    # print(type(cover))
+    stego = cover & ~1 | data_s
+
+    # new_img.save("cover-secret.png")
+    # new_img.show()
+
+    # Recover Secret
+    recovered = np.array(stego) & 1
+
+    return stego, recovered
 
 
 def qr_only(cover, secret, alpha=0.01):
@@ -155,6 +173,7 @@ def qr_fwt(cover, secret, alpha=0.01):
 
     return stego, recovered
 
+
 def qr_both_dwt(cover, secret, alpha=0.01, wavelet='db1'):
     # QR decomposition of cover image
     qc, rc = np.linalg.qr(cover)
@@ -182,8 +201,9 @@ def qr_both_dwt(cover, secret, alpha=0.01, wavelet='db1'):
     r_extracted = (rsi - LL_cover) / alpha
     r_extracted = pywt.idwt2((r_extracted, other_secret), wavelet)
     recovered = qs @ r_extracted
-    
+
     return stego, recovered
+
 
 def qr_both_fwt(cover, secret, alpha=0.01):
     """QR method with FFT after QR decomposition (both)"""
@@ -207,11 +227,12 @@ def qr_both_fwt(cover, secret, alpha=0.01):
     r_extracted = (rsi - LL_cover) / alpha
     r_extracted = np.fft.ifft2(r_extracted)
     recovered = qs @ r_extracted
-    
+
     return stego, recovered
 
 
 METHODS_MAP = {
+    'lsb': lsb,
     "qr": qr_only,
     "dwt_qr": dwt_qr,
     "dft_qr": fwt_qr,
@@ -223,26 +244,23 @@ METHODS_MAP = {
 
 
 def run_comparison(
-    cover_path: str,
-    secret_path: str,
-    methods,
-    skip_evaluation: bool = False,
-    save_fig: bool = False,
+        cover_path: str,
+        secret_path: str,
+        methods,
+        skip_evaluation: bool = False,
+        save_fig: bool = False,
 ):
     evaluations = {}
 
     # Preprocess images (scale to 0-1, pad asymmetrically with zeros)
-    cover = _load_image(cover_path)
-    secret = _load_image(secret_path)
-    cover = cover / 255
-    secret = secret / 255
-
+    cover_unpad = _load_image(cover_path)
+    secret_unpad = _load_image(secret_path)
+    cover = cover_unpad / 255
+    secret = secret_unpad / 255
     # cover = np.concatenate((cover, np.zeros((cover.shape[0], 1))), axis=1)
     # cover = np.concatenate((cover, np.zeros((1, cover.shape[1]))), axis=0)
     # secret = np.concatenate((secret, np.zeros((secret.shape[0], 1))), axis=1)
     # secret = np.concatenate((secret, np.zeros((1, secret.shape[1]))), axis=0)
-    
-
 
     num_methods = len(methods)
     fig, axes = plt.subplots(nrows=num_methods, ncols=6, figsize=(10, 10))
@@ -269,9 +287,10 @@ def run_comparison(
         except KeyError:
             print(f'Warning: method "{method_name}" not found! Skipping...')
             continue
-        
-        stego, recovered = method_func(cover, secret, **exe_config)
-
+        if(method_name == 'lsb'):
+            stego, recovered = method_func(cover_unpad, secret_unpad, **exe_config)
+        else:
+            stego, recovered = method_func(cover, secret, **exe_config)
 
         # Show the stego image
         stego_display = np.uint8(stego * 255)
@@ -280,7 +299,6 @@ def run_comparison(
         # Show the recovered image
         recovered_display = np.uint8(recovered * 255)
         axes[i][3].imshow(recovered_display, cmap="gray", vmin=0, vmax=255)
-
 
         if label == method_name:
             axes[i][0].set_ylabel(f"{label} ({exe_config})")
@@ -296,7 +314,7 @@ def run_comparison(
         hist_stego = cv2.calcHist([stego_display], [0], None, [256], [0, 256])
         hist_recovered = cv2.calcHist([recovered_display], [0], None, [256], [0, 256])
 
-        #Cover vs Stego
+        # Cover vs Stego
         axes[i][4].plot(hist_cover, color="blue")
         axes[i][4].plot(hist_stego, color="red")
         axes[i][4].set_title("Histogram Comparison")
@@ -307,9 +325,10 @@ def run_comparison(
         axes[i][4].set_ylim([0, max(hist_cover.max(), hist_stego.max())])
         axes[i][4].grid(True)
         axes[i][4].set_xticks(np.arange(0, 256, 32))
-        axes[i][4].set_yticks(np.arange(0, max(hist_cover.max(), hist_stego.max()), max(hist_cover.max(), hist_stego.max()) / 10))
+        axes[i][4].set_yticks(
+            np.arange(0, max(hist_cover.max(), hist_stego.max()), max(hist_cover.max(), hist_stego.max()) / 10))
 
-        #Secret vs Recovered
+        # Secret vs Recovered
         axes[i][5].plot(hist_secret, color="blue")
         axes[i][5].plot(hist_recovered, color="red")
         axes[i][5].set_title("Histogram Comparison")
@@ -321,7 +340,8 @@ def run_comparison(
         axes[i][5].grid(True)
         axes[i][5].set_xticks(np.arange(0, 256, 32))
         axes[i][5].set_yticks(
-            np.arange(0, max(hist_secret.max(), hist_recovered.max()), max(hist_secret.max(), hist_recovered.max()) / 10))
+            np.arange(0, max(hist_secret.max(), hist_recovered.max()),
+                      max(hist_secret.max(), hist_recovered.max()) / 10))
 
         evaluation_dict = eval.evaluate_images(
             cover_display,
@@ -342,8 +362,6 @@ def run_comparison(
         axes.set_yticklabels([])
         axes.set_xticklabels([])
 
-
-
     plt.tight_layout()
     if save_fig:
         img_name = os.path.split(cover_path)[1].replace(".jpg", "")
@@ -352,4 +370,4 @@ def run_comparison(
         plt.show()
     return evaluations
 
-#run_comparison('images/cover/099900.jpg', 'images/secret/test.jpg', ['qr', 'qr_dwt', 'qr_dft'], skip_evaluation=False)
+# run_comparison('images/cover/099900.jpg', 'images/secret/test.jpg', ['qr', 'qr_dwt', 'qr_dft'], skip_evaluation=False)

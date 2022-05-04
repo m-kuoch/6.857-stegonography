@@ -8,7 +8,7 @@ import os
 
 
 def _load_image(path):
-    return np.array(Image.open(path).convert("L"))
+    return np.array(Image.open(path).resize((256, 256)).convert("L"))
 
 
 def _show_image(image):
@@ -23,7 +23,8 @@ def histogram_difference(image1, image2):
         ("Correlation", cv2.HISTCMP_CORREL),
         ("Chi-Squared", cv2.HISTCMP_CHISQR),
         ("Intersection", cv2.HISTCMP_INTERSECT),
-        ("Hellinger", cv2.HISTCMP_BHATTACHARYYA))
+        ("Hellinger", cv2.HISTCMP_BHATTACHARYYA),
+    )
     # loop over the comparison methods
     for (methodName, method) in OPENCV_METHODS:
         # initialize the results dictionary and the sort
@@ -57,7 +58,6 @@ def lsb(cover, secret):
     recovered = np.array(stego) & 1
 
     return stego, recovered
-
 
 def qr_only(cover, secret, alpha=0.01):
     qc, rc = np.linalg.qr(cover)
@@ -192,7 +192,9 @@ def qr_both_dwt(cover, secret, alpha=0.01, wavelet='db1'):
         other_combined.append(other_cover[i] + (alpha * other_secret[i]))
     other_combined = tuple(other_combined)
 
-    stego = pywt.idwt2((r_combined, other_combined), wavelet)  # replace other_combined with other_cover
+    stego = pywt.idwt2(
+        (r_combined, other_combined), wavelet
+    )  # replace other_combined with other_cover
     stego = qc @ stego  # transform back to original space
 
     # Extract secret image
@@ -244,11 +246,12 @@ METHODS_MAP = {
 
 
 def run_comparison(
-        cover_path: str,
-        secret_path: str,
-        methods,
-        skip_evaluation: bool = False,
-        save_fig: bool = False,
+    cover_path: str,
+    secret_path: str,
+    methods,
+    skip_evaluation: bool = False,
+    save_fig: bool = False,
+    show_fig: bool = True,
 ):
     evaluations = {}
 
@@ -279,9 +282,9 @@ def run_comparison(
         exe_config = {}
         label = method
         if isinstance(method, dict):
-            method_name = method['name']
-            exe_config = method.get('exe_config', {})
-            label = method.get('label', method_name)
+            method_name = method["name"]
+            exe_config = method.get("exe_config", {})
+            label = method.get("label", method_name)
         try:
             method_func = METHODS_MAP[method_name]
         except KeyError:
@@ -326,7 +329,12 @@ def run_comparison(
         axes[i][4].grid(True)
         axes[i][4].set_xticks(np.arange(0, 256, 32))
         axes[i][4].set_yticks(
-            np.arange(0, max(hist_cover.max(), hist_stego.max()), max(hist_cover.max(), hist_stego.max()) / 10))
+            np.arange(
+                0,
+                max(hist_cover.max(), hist_stego.max()),
+                max(hist_cover.max(), hist_stego.max()) / 10,
+            )
+        )
 
         # Secret vs Recovered
         axes[i][5].plot(hist_secret, color="blue")
@@ -340,8 +348,12 @@ def run_comparison(
         axes[i][5].grid(True)
         axes[i][5].set_xticks(np.arange(0, 256, 32))
         axes[i][5].set_yticks(
-            np.arange(0, max(hist_secret.max(), hist_recovered.max()),
-                      max(hist_secret.max(), hist_recovered.max()) / 10))
+            np.arange(
+                0,
+                max(hist_secret.max(), hist_recovered.max()),
+                max(hist_secret.max(), hist_recovered.max()) / 10,
+            )
+        )
 
         evaluation_dict = eval.evaluate_images(
             cover_display,
@@ -365,8 +377,8 @@ def run_comparison(
     plt.tight_layout()
     if save_fig:
         img_name = os.path.split(cover_path)[1].replace(".jpg", "")
-        plt.savefig(os.path.join('evaluation', 'figures', f'{img_name}-plot.png'))
-    else:
+        plt.savefig(os.path.join("evaluation", "figures", f"{img_name}-plot.png"))
+    elif show_fig:
         plt.show()
     return evaluations
 

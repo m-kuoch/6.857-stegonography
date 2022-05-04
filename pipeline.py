@@ -48,7 +48,7 @@ def lsb(cover, secret):
     # Rewrite LSB
     # print(cover)
     # print(type(cover))
-    stego = cover & ~1 | data_s
+    stego = 255 - cover & ~1 | data_s
 
     # new_img.save("cover-secret.png")
     # new_img.show()

@@ -8,7 +8,7 @@ import os
 
 
 def _load_image(path):
-    return np.array(Image.open(path).resize((256, 256)).convert("L"))
+    return np.array(Image.open(path).convert("L"))
 
 
 def _show_image(image):

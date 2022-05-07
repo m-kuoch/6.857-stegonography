@@ -49,14 +49,14 @@ def lsb(cover, secret):
     # Rewrite LSB
     # print(cover)
     # print(type(cover))
-    stego = 255 - cover & ~1 | data_s
+    stego = cover & ~1 | data_s
 
     # new_img.save("cover-secret.png")
     # new_img.show()
 
     # Recover Secret
     recovered = np.array(stego) & 1
-
+    stego = stego/255
     return stego, recovered
 
 def qr_only(cover, secret, alpha=0.01):
@@ -71,7 +71,6 @@ def qr_only(cover, secret, alpha=0.01):
     qsi, rsi = np.linalg.qr(stego)
     r_extracted = (rsi - rc) / alpha
     recovered = qs @ r_extracted
-
     return stego, recovered
 
 

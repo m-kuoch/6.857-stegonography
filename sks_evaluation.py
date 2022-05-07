@@ -9,8 +9,8 @@ from scipy.stats import ortho_group
 
 
 if __name__ == '__main__':
-    #fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(12, 6))
-    test_type = 'dft_qr'
+    fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(12, 6))
+    test_type = 'qr'
 
     save_path = f'./evaluation/sks/{test_type}_results.pkl'
 
@@ -88,6 +88,16 @@ if __name__ == '__main__':
         elif test_type == 'dft_qr':
             recovered = np.fft.ifft2(recovered)
 
+        #print(np.uint8(secret * 255))
+        #print(np.uint8(recovered * 255))
+
+        import skimage
+
+        secret = np.clip(secret, 0, 1)
+        recovered = np.clip(recovered, 0, 1)
+
+        # print(skimage.metrics.structural_similarity(np.uint8(secret*255), np.uint8(recovered*255), data_range=255))
+
         im_results = evaluate_images(
             np.uint8(cover * 255),
             np.uint8(secret * 255),
@@ -105,6 +115,7 @@ if __name__ == '__main__':
 
         for field in results:
             results[field].append(im_results[field])
+        print(im_results['recovered_ssim'])
 
     pickle.dump(results, open(save_path, 'wb'))
 

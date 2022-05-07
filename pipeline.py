@@ -59,7 +59,7 @@ def lsb(cover, secret):
     stego = stego/255
     return stego, recovered
 
-def qr_only(cover, secret, alpha=0.01):
+def qr_only(cover, secret, alpha=0.001):
     qc, rc = np.linalg.qr(cover)
     qs, rs = np.linalg.qr(secret)
 
@@ -74,7 +74,7 @@ def qr_only(cover, secret, alpha=0.01):
     return stego, recovered
 
 
-def dwt_qr(cover, secret, alpha=0.01, wavelet="db1"):
+def dwt_qr(cover, secret, alpha=0.001, wavelet="db1"):
     """QR method with Discrete Wavelet Transform (DWT)"""
     LL, other_cover = pywt.dwt2(cover, wavelet)
     qc, rc = np.linalg.qr(LL)
@@ -97,7 +97,7 @@ def dwt_qr(cover, secret, alpha=0.01, wavelet="db1"):
     return stego, recovered
 
 
-def fwt_qr(cover, secret, alpha=0.01):
+def fwt_qr(cover, secret, alpha=0.001):
     """QR method with Discrete FOurier Transform (DFT)"""
     LL = np.fft.fft2(cover)
     qc, rc = np.linalg.qr(LL)
@@ -120,7 +120,7 @@ def fwt_qr(cover, secret, alpha=0.01):
     return stego, recovered
 
 
-def qr_dwt(cover, secret, alpha=0.01, wavelet="db1"):
+def qr_dwt(cover, secret, alpha=0.001, wavelet="db1"):
     """QR method with DWT after QR decomposition (histo paper)"""
     # QR decomposition of secret image
     qs, rs = np.linalg.qr(secret)
@@ -150,7 +150,7 @@ def qr_dwt(cover, secret, alpha=0.01, wavelet="db1"):
     return stego, recovered
 
 
-def qr_fwt(cover, secret, alpha=0.01):
+def qr_fwt(cover, secret, alpha=0.001):
     """QR method with DWT after QR decomposition (histo paper)"""
     # QR decomposition of secret image
     qs, rs = np.linalg.qr(secret)
@@ -173,7 +173,7 @@ def qr_fwt(cover, secret, alpha=0.01):
     return stego, recovered
 
 
-def qr_both_dwt(cover, secret, alpha=0.01, wavelet='db1'):
+def qr_both_dwt(cover, secret, alpha=0.001, wavelet='db1'):
     # QR decomposition of cover image
     qc, rc = np.linalg.qr(cover)
     # QR decomposition of secret image
@@ -206,7 +206,7 @@ def qr_both_dwt(cover, secret, alpha=0.01, wavelet='db1'):
     return stego, recovered
 
 
-def qr_both_fwt(cover, secret, alpha=0.01):
+def qr_both_fwt(cover, secret, alpha=0.001):
     """QR method with FFT after QR decomposition (both)"""
     # QR decomposition of cover image
     qc, rc = np.linalg.qr(cover)

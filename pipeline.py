@@ -16,25 +16,6 @@ def _show_image(image):
     plt.show()
 
 
-def histogram_difference(image1, image2):
-    # METHOD #1: UTILIZING OPENCV
-    # initialize OpenCV methods for histogram comparison
-    OPENCV_METHODS = (
-        ("Correlation", cv2.HISTCMP_CORREL),
-        ("Chi-Squared", cv2.HISTCMP_CHISQR),
-        ("Intersection", cv2.HISTCMP_INTERSECT),
-        ("Hellinger", cv2.HISTCMP_BHATTACHARYYA),
-    )
-    # loop over the comparison methods
-    for (methodName, method) in OPENCV_METHODS:
-        # initialize the results dictionary and the sort
-        # direction
-        results = {}
-        reverse = False
-        # if we are using the correlation or intersection
-        # method, then sort the results in reverse order
-        if methodName in ("Correlation", "Intersection"):
-            reverse = True
 
 
 def lsb(cover, secret):
@@ -51,12 +32,17 @@ def lsb(cover, secret):
     # print(type(cover))
     stego = cover & ~1 | data_s
 
+    #save image to jpeg
+    stego_image = Image.fromarray(np.uint8(stego))
+    stego_image.save("stego-compressed.jpeg", "JPEG")
+    stego = _load_image("stego-compressed.jpeg")
     # new_img.save("cover-secret.png")
     # new_img.show()
 
     # Recover Secret
     recovered = np.array(stego) & 1
     stego = stego/255
+
     return stego, recovered
 
 def qr_only(cover, secret, alpha=0.001):
@@ -66,6 +52,12 @@ def qr_only(cover, secret, alpha=0.001):
     # Combine cover and secret, generate stego
     r_combined = rc + (alpha * rs)
     stego = qc @ r_combined
+
+    #save image to jpeg
+    stego_image = Image.fromarray(np.uint8(stego*255))
+    stego_image.save("stego-compressed.jpeg", "JPEG")
+    stego = _load_image("stego-compressed.jpeg") / 255
+
 
     # Extract secret image
     qsi, rsi = np.linalg.qr(stego)
@@ -86,6 +78,12 @@ def dwt_qr(cover, secret, alpha=0.001, wavelet="db1"):
     r_combined = rc + (alpha * rs)
     stego = qc @ r_combined
     stego = pywt.idwt2((stego, other_cover), wavelet)
+
+    #save image to jpeg
+    stego_image = Image.fromarray(np.uint8(stego*255))
+    stego_image.save("stego-compressed.jpeg", "JPEG")
+    stego = _load_image("stego-compressed.jpeg") / 255
+
 
     # Extract secret image
     LL, other = pywt.dwt2(stego, wavelet)
@@ -109,6 +107,11 @@ def fwt_qr(cover, secret, alpha=0.001):
     r_combined = rc + (alpha * rs)
     stego = qc @ r_combined
     stego = np.fft.ifft2(stego)
+
+    #save image to jpeg
+    stego_image = Image.fromarray(np.uint8(stego*255))
+    stego_image.save("stego-compressed.jpeg", "JPEG")
+    stego = _load_image("stego-compressed.jpeg") / 255
 
     # Extract secret image
     LL = np.fft.fft2(stego)
@@ -141,6 +144,11 @@ def qr_dwt(cover, secret, alpha=0.001, wavelet="db1"):
         (r_combined, other_combined), wavelet
     )  # replace other_combined with other_cover
 
+    #save image to jpeg
+    stego_image = Image.fromarray(np.uint8(stego*255))
+    stego_image.save("stego-compressed.jpeg", "JPEG")
+    stego = _load_image("stego-compressed.jpeg") / 255
+
     # Extract secret image
     rsi, other_recovered = pywt.dwt2(stego, wavelet)
     r_extracted = (rsi - LL_cover) / alpha
@@ -163,6 +171,11 @@ def qr_fwt(cover, secret, alpha=0.001):
     r_combined = LL_cover + (alpha * LL_secret)
 
     stego = np.fft.ifft2(r_combined)
+
+    #save image to jpeg
+    stego_image = Image.fromarray(np.uint8(stego*255))
+    stego_image.save("stego-compressed.jpeg", "JPEG")
+    stego = _load_image("stego-compressed.jpeg") / 255
 
     # Extract secret image
     rsi = np.fft.fft2(stego)
@@ -196,6 +209,11 @@ def qr_both_dwt(cover, secret, alpha=0.001, wavelet='db1'):
     )  # replace other_combined with other_cover
     stego = qc @ stego  # transform back to original space
 
+    #save image to jpeg
+    stego_image = Image.fromarray(np.uint8(stego*255))
+    stego_image.save("stego-compressed.jpeg", "JPEG")
+    stego = _load_image("stego-compressed.jpeg") / 255
+
     # Extract secret image
     q_secret, r_secret = np.linalg.qr(stego)
     rsi, other_recovered = pywt.dwt2(r_secret, wavelet)
@@ -221,6 +239,11 @@ def qr_both_fwt(cover, secret, alpha=0.001):
     r_combined = LL_cover + (alpha * LL_secret)
     stego = np.fft.ifft2(r_combined)
     stego = qc @ stego  # transform back to original space
+
+    #save image to jpeg
+    stego_image = Image.fromarray(np.uint8(stego*255))
+    stego_image.save("stego-compressed.jpeg", "JPEG")
+    stego = _load_image("stego-compressed.jpeg") / 255
 
     # Extract secret image
     q_secret, r_secret = np.linalg.qr(stego)

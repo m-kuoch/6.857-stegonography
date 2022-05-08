@@ -46,32 +46,32 @@ def analysis():
     print(aggregated)
 
     # px.sunburst(df, path=["eval_metric", "method"], values='value').show()
-    for eval_metric in ["psnr", "ssim", "ws"]:
-        specific_df = df[df["eval_metric"].str.contains(eval_metric)]
-        specific_df['eval_metric'] = specific_df['eval_metric'].replace(METRIC_MAP.keys(), METRIC_MAP.values())
+    # for eval_metric in ["psnr", "ssim", "ws"]:
+    #     specific_df = df[df["eval_metric"].str.contains(eval_metric)]
+    #     specific_df['eval_metric'] = specific_df['eval_metric'].replace(METRIC_MAP.keys(), METRIC_MAP.values())
         
-        print(specific_df)
-        fig = px.box(
-            specific_df,
-            x="method",
-            y="value",
-            color="eval_metric",
-            facet_col="eval_metric",
-            # barmode="group",
-            title=f"{METRIC_MAP[eval_metric]} Value per Stego Method",
-        )
+    #     print(specific_df)
+    #     fig = px.box(
+    #         specific_df,
+    #         x="method",
+    #         y="value",
+    #         color="eval_metric",
+    #         facet_col="eval_metric",
+    #         # barmode="group",
+    #         title=f"{METRIC_MAP[eval_metric]} Value per Stego Method",
+    #     )
 
-        fig.update_xaxes(
-            tickangle=45,
-            title_text="Stegonography Method",
-        )
-        # Updat 
-        # fig.update_yaxes(
-        #     title_text=f"{METRIC_MAP[eval_metric]} Value", title_font={"size": 20}
-        # )
-        fig.show()
+    #     fig.update_xaxes(
+    #         tickangle=45,
+    #         title_text="Stegonography Method",
+    #     )
+    #     # Updat 
+    #     # fig.update_yaxes(
+    #     #     title_text=f"{METRIC_MAP[eval_metric]} Value", title_font={"size": 20}
+    #     # )
+    #     fig.show()
 
-        continue
+    #     continue
 
     # different_methods = [y for x, y in df.groupby('method', as_index=False)]
     # for method in different_methods:
@@ -147,10 +147,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # main()
     # df = pd.read_csv("./evaluation/eval-dataframe-mean-grouped.csv", index_col=0)
     # # df.style.apply(highlight_max).to_html("results.html")
     # df_styled = df.style.highlight_max(color="lightgreen", axis=0).highlight_min(
     #     color="lightcoral", axis=0)
     # dfi.export(df_styled, "dataframe4.png")
-    # analysis()
+    analysis()

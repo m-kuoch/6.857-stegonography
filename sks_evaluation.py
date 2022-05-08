@@ -6,11 +6,12 @@ import pickle
 from PIL import Image
 import pywt
 from scipy.stats import ortho_group
+import skimage
 
 
 if __name__ == '__main__':
     fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(12, 6))
-    test_type = 'qr'
+    test_type = 'dwt_qr'
 
     save_path = f'./evaluation/sks/{test_type}_results.pkl'
 
@@ -54,6 +55,7 @@ if __name__ == '__main__':
         img_num = filename.replace('.jpg', '')
         if filename == "baboon.jpg" or filename == "lady.jpg":
             continue
+        #filename = '099902.jpg'
 
         cover = np.array(Image.open(os.path.join(COVER_DIR_PATH, filename)).convert('L')) / 255
         if test_type == 'qr':
@@ -78,7 +80,7 @@ if __name__ == '__main__':
             stego_untransformed = np.fft.fft2(stego)
 
         # Recover secret image
-        r1 = np.asmatrix(qc).H @ stego_untransformed
+        r1 = np.array(np.asmatrix(qc).H @ stego_untransformed)
         ts_extracted = (r1 - rc) / alpha
         recovered = key.T @ ts_extracted
         #print(transformed_secret - recovered)
@@ -91,12 +93,8 @@ if __name__ == '__main__':
         #print(np.uint8(secret * 255))
         #print(np.uint8(recovered * 255))
 
-        import skimage
-
-        secret = np.clip(secret, 0, 1)
-        recovered = np.clip(recovered, 0, 1)
-
-        # print(skimage.metrics.structural_similarity(np.uint8(secret*255), np.uint8(recovered*255), data_range=255))
+        #secret = np.clip(secret, 0, 1)
+        #recovered = np.clip(recovered, 0, 1)
 
         im_results = evaluate_images(
             np.uint8(cover * 255),
@@ -108,14 +106,14 @@ if __name__ == '__main__':
         # axes[0].imshow(np.uint8(cover*255), cmap='gray', vmin=0, vmax=255)
         # axes[1].imshow(np.uint8(secret*255), cmap='gray', vmin=0, vmax=255)
         # axes[2].imshow(np.uint8(stego*255), cmap='gray', vmin=0, vmax=255)
-        # axes[3].imshow(np.uint8(recovered*255), cmap='gray', vmin=0, vmax=255)
+        # axes[3].imshow(v, cmap='gray', vmin=0, vmax=255)
         # plt.show()
         #
         # exit()
 
         for field in results:
             results[field].append(im_results[field])
-        print(im_results['recovered_ssim'])
+        #print(im_results['recovered_ssim'])
 
     pickle.dump(results, open(save_path, 'wb'))
 

@@ -35,15 +35,17 @@ METHOD_LABEL_MAP = {
 def analysis():
     df = pd.read_csv(os.path.join("evaluation", "eval-dataframe.csv"))
     # Melt the df to get access to the different types
-    df = df.melt(id_vars=["method"], value_vars=df.columns[:-1], var_name="eval_metric")
+    # df = df.melt(id_vars=["method"], value_vars=df.columns[:-1], var_name="eval_metric")
     print(METHOD_LABEL_MAP)
     df["method"] = df["method"].replace(
         METHOD_LABEL_MAP.keys(), METHOD_LABEL_MAP.values()
     )
     # df['eval_metric'] = df['eval_metric'].replace(METRIC_MAP.keys(), METRIC_MAP.values())
     # Aggregate by getting the median value for each method and metric
-    aggregated = df.groupby(["method", "eval_metric"]).median().reset_index()
+    aggregated = df.groupby(["method"]).median().reset_index()
     print(aggregated)
+    
+    aggregated.to_csv(os.path.join("evaluation", "median-aggregated-bruh.csv"), index=False)
 
     # px.sunburst(df, path=["eval_metric", "method"], values='value').show()
     # for eval_metric in ["psnr", "ssim", "ws"]:
